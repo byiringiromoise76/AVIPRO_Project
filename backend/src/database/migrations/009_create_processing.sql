@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS processing (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  order_id BIGINT UNSIGNED NOT NULL,
+  assigned_to BIGINT UNSIGNED NULL,
+  status ENUM('PENDING', 'IN_PROGRESS', 'COMPLETED') NOT NULL DEFAULT 'PENDING',
+  notes TEXT NULL,
+  started_at DATETIME(3) NULL,
+  completed_at DATETIME(3) NULL,
+  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  CONSTRAINT fk_processing_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+  CONSTRAINT fk_processing_user FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL,
+  UNIQUE KEY uq_processing_order (order_id),
+  INDEX idx_processing_status (status)
+) ENGINE=InnoDB;

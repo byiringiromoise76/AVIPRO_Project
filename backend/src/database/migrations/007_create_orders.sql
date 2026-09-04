@@ -1,0 +1,31 @@
+CREATE TABLE IF NOT EXISTS orders (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  branch_id BIGINT UNSIGNED NOT NULL,
+  customer_id BIGINT UNSIGNED NOT NULL,
+  customer_service_id BIGINT UNSIGNED NULL,
+  salesperson_id BIGINT UNSIGNED NULL,
+  order_code VARCHAR(50) NOT NULL,
+  status ENUM(
+    'PENDING','APPROVED','REJECTED','IN_PROCESSING',
+    'READY_FOR_DELIVERY','DISPATCHED','DELIVERED','CANCELLED'
+  ) NOT NULL DEFAULT 'PENDING',
+  total_amount DECIMAL(14,2) NOT NULL DEFAULT 0,
+  rejection_reason TEXT NULL,
+  internal_notes TEXT NULL,
+  customer_confirmed BOOLEAN NOT NULL DEFAULT FALSE,
+  customer_confirmed_at DATETIME(3) NULL,
+  requested_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  approved_at DATETIME(3) NULL,
+  processed_at DATETIME(3) NULL,
+  delivered_at DATETIME(3) NULL,
+  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  CONSTRAINT fk_orders_branch FOREIGN KEY (branch_id) REFERENCES branches(id),
+  CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES customers(id),
+  CONSTRAINT fk_orders_customer_service FOREIGN KEY (customer_service_id) REFERENCES users(id) ON DELETE SET NULL,
+  CONSTRAINT fk_orders_salesperson FOREIGN KEY (salesperson_id) REFERENCES users(id) ON DELETE SET NULL,
+  UNIQUE KEY uq_orders_code (order_code),
+  INDEX idx_orders_status (status),
+  INDEX idx_orders_branch_status (branch_id, status),
+  INDEX idx_orders_customer (customer_id)
+) ENGINE=InnoDB;

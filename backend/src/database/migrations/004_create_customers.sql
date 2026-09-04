@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS users (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  branch_id BIGINT UNSIGNED NOT NULL,
+  full_name VARCHAR(150) NOT NULL,
+  email VARCHAR(190) NOT NULL,
+  phone VARCHAR(30) NULL,
+  role ENUM('ADMIN','SALES','CUSTOMER_SERVICE','PROCESSING','DELIVERY') NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  failed_login_attempts INT UNSIGNED NOT NULL DEFAULT 0,
+  locked_until DATETIME(3) NULL,
+  last_login_at DATETIME(3) NULL,
+  password_changed_at DATETIME(3) NULL,
+  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  CONSTRAINT fk_users_branch FOREIGN KEY (branch_id) REFERENCES branches(id),
+  UNIQUE KEY uq_users_email (email),
+  INDEX idx_users_branch (branch_id),
+  INDEX idx_users_role (role)
+) ENGINE=InnoDB;
