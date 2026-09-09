@@ -16,42 +16,24 @@ export async function seedBranches() {
     const branches = [
         {
             name: "Main Branch",
-            address: "123 Business Ave, Downtown",
-            city: "New York",
-            state: "NY",
-            zipCode: "10001",
-            phone: "+1-212-555-0100",
-            email: "main@avipro.com",
-            isActive: true
+            location: "123 Business Ave, Downtown, New York, NY 10001"
         },
         {
             name: "West Coast Branch",
-            address: "456 Tech Blvd, Silicon Valley",
-            city: "San Francisco",
-            state: "CA",
-            zipCode: "94105",
-            phone: "+1-415-555-0200",
-            email: "westcoast@avipro.com",
-            isActive: true
+            location: "456 Tech Blvd, Silicon Valley, San Francisco, CA 94105"
         },
         {
             name: "Midwest Branch",
-            address: "789 Commerce St, Business District",
-            city: "Chicago",
-            state: "IL",
-            zipCode: "60601",
-            phone: "+1-312-555-0300",
-            email: "midwest@avipro.com",
-            isActive: true
+            location: "789 Commerce St, Business District, Chicago, IL 60601"
         }
     ];
 
     for (const branch of branches) {
         try {
             await pool.execute(
-                `INSERT INTO branches (name, address, city, state, zip_code, phone, email, is_active)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-                [branch.name, branch.address, branch.city, branch.state, branch.zipCode, branch.phone, branch.email, branch.isActive]
+                `INSERT INTO branches (name, location)
+                 VALUES (?, ?)`,
+                [branch.name, branch.location]
             );
             console.log(`Created branch: ${branch.name}`);
         } catch (error) {

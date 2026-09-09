@@ -13,9 +13,8 @@ async function start() {
 
     }
 }
-
 //starting the server
 app.listen(env.port, () => {
-    console.log(`AVIPRO API running`)
+    console.log(`AVIPRO API running on port ${env.port}`);
 });
 start()

@@ -27,7 +27,7 @@ export async function seedStaff() {
             email: "manager@avipro.com",
             password: "password123",
             name: "Branch Manager",
-            role: "MANAGER",
+            role: "ADMIN",
             branchId: 1
         },
         {
@@ -41,14 +41,14 @@ export async function seedStaff() {
             email: "staff@avipro.com",
             password: "password123",
             name: "Warehouse Staff",
-            role: "STAFF",
+            role: "PROCESSING",
             branchId: 1
         },
         {
             email: "west.manager@avipro.com",
             password: "password123",
             name: "West Coast Manager",
-            role: "MANAGER",
+            role: "ADMIN",
             branchId: 2
         },
         {
@@ -64,7 +64,7 @@ export async function seedStaff() {
         try {
             const passwordHash = await bcrypt.hash(user.password, 10);
             await pool.execute(
-                `INSERT INTO users (email, password_hash, name, role, branch_id, is_active)
+                `INSERT INTO users (email, password_hash, full_name, role, branch_id, is_active)
                  VALUES (?, ?, ?, ?, ?, TRUE)`,
                 [user.email, passwordHash, user.name, user.role, user.branchId]
             );

@@ -3,7 +3,7 @@ import { Router } from "express";
 // import { authorize } from "../../middleware/authorize.js";
 // import { validate } from "../../middleware/validate.js";
 // import { createProductSchema } from "./product.validation.js";
-import { createProduct } from "./product.controller.js";
+import { createProduct, getProducts,getproductbyId,updateProduct } from "./product.controller.js";
 
 const router = Router();
 router.post(
@@ -13,5 +13,19 @@ router.post(
     // validate(createProductSchema),
     createProduct
 );
-
+//get all products
+router.get(
+    "/",
+    // authenticate,
+    // authorize("ADMIN", "SALES"),
+    getProducts
+);
+//get product by Id
+router.get("/:id",
+    getproductbyId
+)
+//update product
+router.put("/:id",
+    updateProduct
+);
 export default router;

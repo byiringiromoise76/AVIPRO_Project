@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS orders (
   created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
   CONSTRAINT fk_orders_branch FOREIGN KEY (branch_id) REFERENCES branches(id),
-  CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES customers(id),
+  CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES users(id),
   CONSTRAINT fk_orders_customer_service FOREIGN KEY (customer_service_id) REFERENCES users(id) ON DELETE SET NULL,
   CONSTRAINT fk_orders_salesperson FOREIGN KEY (salesperson_id) REFERENCES users(id) ON DELETE SET NULL,
   UNIQUE KEY uq_orders_code (order_code),
