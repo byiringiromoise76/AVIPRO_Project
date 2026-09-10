@@ -26,18 +26,24 @@ export async function getAllProducts() {
     return await productRepository.findAll();
 }
 //get product by Id
-export async function getProductbyId(id){
+export async function getProductbyId(id) {
     return await productRepository.findById(id);
 }
 //update product
-export async function updateProduct(id){
-    return await productRepository.UpdateProduct();
+export async function updateProduct(id, { name, sku, sellingUnit, price, minimumStock }) {
+    return await productRepository.UpdateProduct(id, {
+        name,
+        sku,
+        selling_unit: sellingUnit,
+        price,
+        minimum_stock: minimumStock
+    });
 }
 //delete product
-export async function deleteProducts(id){
-    return await productRepository.deleteProduct();
+export async function deleteProducts(id) {
+    return await productRepository.deleteProduct(id);
 }
 //search product name
-export async function getProductByName(name){
-    return await productRepository.getProductName();
+export async function getProductByName(name) {
+    return await productRepository.getProductName(name);
 }
