@@ -16,15 +16,18 @@ export async function seedBranches() {
     const branches = [
         {
             name: "Main Branch",
-            location: "123 Business Ave, Downtown, New York, NY 10001"
+            location: "123 Business Ave, Downtown, New York, NY 10001",
+            isMain: true
         },
         {
             name: "West Coast Branch",
-            location: "456 Tech Blvd, Silicon Valley, San Francisco, CA 94105"
+            location: "456 Tech Blvd, Silicon Valley, San Francisco, CA 94105",
+            isMain: false
         },
         {
             name: "Midwest Branch",
-            location: "789 Commerce St, Business District, Chicago, IL 60601"
+            location: "789 Commerce St, Business District, Chicago, IL 60601",
+            isMain: false
         }
     ];
 
@@ -35,10 +38,10 @@ export async function seedBranches() {
                  VALUES (?, ?)`,
                 [branch.name, branch.location]
             );
-            console.log(`Created branch: ${branch.name}`);
+            console.log(`Created branch: ${branch.name}${branch.isMain ? ' (MAIN BRANCH)' : ''}`);
         } catch (error) {
             if (error.code === 'ER_DUP_ENTRY') {
-                console.log(`Branch already exists: ${branch.name}`);
+                console.log(`Branch already exists: ${branch.name}${branch.isMain ? ' (MAIN BRANCH)' : ''}`);
             } else {
                 throw error;
             }

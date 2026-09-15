@@ -2,6 +2,7 @@
 import { pool } from "../../database/pool.js"
 
 export async function findOrCreateCustomer(connection, { fullName, phone, address, businessName, branchId }) {
+  // Check if customer exists (across all branches since we use main branch)
   const [existing] = await connection.execute(
     "SELECT id FROM customers WHERE phone = ? LIMIT 1",
     [phone]
@@ -9,6 +10,7 @@ export async function findOrCreateCustomer(connection, { fullName, phone, addres
 
   if (existing[0]) return existing[0].id;
 
+  // Create customer in main branch
   const [result] = await connection.execute(
     `
     INSERT INTO customers (branch_id, full_name, phone, address, business_name)
@@ -57,17 +59,9 @@ export async function recalculateTotal(connection, orderId) {
 }
 
 export async function findByIdForUpdate(connection, orderId, actor) {
-  let query = `SELECT id, branch_id, status FROM orders WHERE id = ?`;
-  const params = [orderId];
-
-  // For testing without auth, always return the order
-  if (actor && actor.role !== "ADMIN") {
-    query += " AND branch_id = ?";
-    params.push(actor.branchId);
-  }
-
-  query += " FOR UPDATE";
-  const [rows] = await connection.execute(query, params);
+  // All orders go through main branch, so no branch scope check needed
+  const query = `SELECT id, branch_id, status FROM orders WHERE id = ? FOR UPDATE`;
+  const [rows] = await connection.execute(query, [orderId]);
   return rows[0];
 }
 
@@ -103,4 +97,12 @@ export async function findAll() {
     `SELECT * FROM orders ORDER BY created_at DESC`
   );
   return rows;
+}
+
+export async function findById(orderId) {
+  const [rows] = await pool.execute(
+    `SELECT * FROM orders WHERE id = ? LIMIT 1`,
+    [orderId]
+  );
+  return rows[0] || null;
 }

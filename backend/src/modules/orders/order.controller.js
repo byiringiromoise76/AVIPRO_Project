@@ -5,7 +5,7 @@ import * as orderService from "./order.service.js";
 const getActor = (req) => {
   return req.auth || {
     userId: 1,
-    branchId: 1,
+    branchId: 1, // Always use main branch
     role: "ADMIN"
   };
 };

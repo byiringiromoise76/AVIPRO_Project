@@ -6,6 +6,57 @@ export async function getAllOrders() {
   return await orderRepository.findAll();
 }
 
+// Main branch ID - all orders go through the main branch
+const MAIN_BRANCH_ID = 1;
+
+export async function logOrder({ actor, customer, items }) {
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    // Always use main branch for all order requests
+    const branchId = MAIN_BRANCH_ID;
+
+    // Find or create customer
+    const customerId = await orderRepository.findOrCreateCustomer(connection, {
+      fullName: customer.fullName,
+      phone: customer.phone,
+      address: customer.address,
+      businessName: customer.businessName,
+      branchId
+    });
+
+    // Generate order code
+    const orderCode = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+    // Create order
+    const orderId = await orderRepository.createOrder(connection, {
+      branchId,
+      customerId,
+      loggedBy: actor.userId,
+      orderCode
+    });
+
+    // Add order items
+    await orderRepository.addOrderItems(connection, orderId, items);
+
+    // Recalculate total
+    await orderRepository.recalculateTotal(connection, orderId);
+
+    await connection.commit();
+
+    // Return the created order with details
+    const order = await orderRepository.findById(orderId);
+    return order;
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
 async function transitionOrder({ orderId, actor, comment, allowedRoles, fromStatus, toStatus, extraFields = {}, afterUpdate }) {
   const connection = await pool.getConnection();
 
