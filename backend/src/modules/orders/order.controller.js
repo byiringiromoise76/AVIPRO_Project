@@ -10,6 +10,15 @@ const getActor = (req) => {
   };
 };
 
+export async function getAllOrders(req, res, next) {
+  try {
+    const orders = await orderService.getAllOrders();
+    return res.status(200).json({ data: orders });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function logOrder(req, res, next) {
   try {
     const result = await orderService.logOrder({

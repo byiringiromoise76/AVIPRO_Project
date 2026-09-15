@@ -50,7 +50,7 @@ export async function updateCustomer(id, { fullName, phone, address, businessNam
     }
 
     // Check if phone is being changed and if new phone already exists
-    if (phone && phone !== existing.phone) {
+    if (phone !== undefined && phone !== existing.phone) {
         const phoneExists = await customerRepository.findByPhone(phone);
         if (phoneExists) {
             const error = new Error("A customer with this phone number already exists");
@@ -59,12 +59,13 @@ export async function updateCustomer(id, { fullName, phone, address, businessNam
         }
     }
 
-    await customerRepository.updateCustomer(id, {
-        fullName,
-        phone,
-        address,
-        businessName
-    });
+    const updateData = {};
+    if (fullName !== undefined) updateData.fullName = fullName;
+    if (phone !== undefined) updateData.phone = phone;
+    if (address !== undefined) updateData.address = address;
+    if (businessName !== undefined) updateData.businessName = businessName;
+
+    await customerRepository.updateCustomer(id, updateData);
     return customerRepository.findById(id);
 }
 

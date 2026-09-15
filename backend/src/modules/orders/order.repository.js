@@ -1,4 +1,6 @@
 // src/modules/orders/order.repository.js
+import { pool } from "../../database/pool.js"
+
 export async function findOrCreateCustomer(connection, { fullName, phone, address, businessName, branchId }) {
   const [existing] = await connection.execute(
     "SELECT id FROM customers WHERE phone = ? LIMIT 1",
@@ -94,4 +96,11 @@ export async function createStatusHistory(connection, orderId, userId, oldStatus
     `,
     [orderId, userId, oldStatus, newStatus, comment || null]
   );
+}
+
+export async function findAll() {
+  const [rows] = await pool.execute(
+    `SELECT * FROM orders ORDER BY created_at DESC`
+  );
+  return rows;
 }

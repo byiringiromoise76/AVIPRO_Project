@@ -13,9 +13,9 @@ export async function addProduct({ name, sku, sellingUnit, price, minimumStock }
         {
             name,
             sku,
-            selling_unit: sellingUnit,
+            selling_unit: sellingUnit || null,
             price,
-            minimum_stock: minimumStock
+            minimum_stock: minimumStock ?? 0
         }
     );
     return productRepository.findById(id);
@@ -31,13 +31,14 @@ export async function getProductbyId(id) {
 }
 //update product
 export async function updateProduct(id, { name, sku, sellingUnit, price, minimumStock }) {
-    return await productRepository.UpdateProduct(id, {
-        name,
-        sku,
-        selling_unit: sellingUnit,
-        price,
-        minimum_stock: minimumStock
-    });
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (sku !== undefined) updateData.sku = sku;
+    if (sellingUnit !== undefined) updateData.selling_unit = sellingUnit;
+    if (price !== undefined) updateData.price = price;
+    if (minimumStock !== undefined) updateData.minimum_stock = minimumStock;
+
+    return await productRepository.UpdateProduct(id, updateData);
 }
 //delete product
 export async function deleteProducts(id) {

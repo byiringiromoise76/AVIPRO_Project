@@ -6,6 +6,11 @@ import * as orderController from "./order.controller.js";
 
 const router = Router();
 
+// Get all orders
+router.get("/",
+      // authorize("ADMIN", "SALES", "CUSTOMER_SERVICE"),
+      orderController.getAllOrders);
+
 // Customer Service / Sales logs a request that came in outside the system.
 router.post("/",
       // authorize("ADMIN", "SALES", "CUSTOMER_SERVICE"),
