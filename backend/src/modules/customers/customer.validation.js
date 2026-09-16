@@ -1,3 +1,11 @@
+/**
+ * src/modules/customers/customer.validation.js
+ * 
+ * Zod schemas for customer endpoints.
+ * 
+ * NOTE: No email field — customers don't have an email column in the DB.
+ * They are identified by phone + branch.
+ */
 import { z } from "zod";
 
 const customerBodySchema = z.object({
@@ -7,10 +15,16 @@ const customerBodySchema = z.object({
     businessName: z.string().max(150, "Business name must be less than 150 characters").optional()
 });
 
+/**
+ * POST /api/customers — Create customer body schema.
+ */
 export const createCustomerSchema = z.object({
     body: customerBodySchema
 });
 
+/**
+ * PUT /api/customers/:id — Update customer schema (all fields optional).
+ */
 export const updateCustomerSchema = z.object({
     body: customerBodySchema.partial(),
     params: z.object({
@@ -18,6 +32,9 @@ export const updateCustomerSchema = z.object({
     })
 });
 
+/**
+ * GET /api/customers/search?search=term — Query schema.
+ */
 export const searchCustomerSchema = z.object({
     query: z.object({
         search: z.string().min(1, "Search term is required")

@@ -1,58 +1,61 @@
-// src/middleware/validate.js
 /**
- * Request validation middleware using Zod schemas
- * Validates request body, params, and query against a Zod schema
+ * src/middleware/validate.js
+ * 
+ * Request validation middleware using Zod schemas.
+ * Validates request body, params, and query against a Zod schema.
+ * 
+ * WHY: Never trust user input! This middleware ensures all incoming data
+ * matches expected shapes BEFORE it reaches the database. It prevents:
+ * - SQL injection (by ensuring correct types)
+ * - Missing required fields
+ * - Invalid data formats (bad emails, negative numbers, etc.)
  * 
  * Example usage:
  *   import { validate } from './middleware/validate.js';
  *   import { createProductSchema } from './product.validation.js';
  *   
+ *   // POST /api/products with body { name: "Widget", price: 9.99 }
  *   router.post('/products', validate(createProductSchema), createProduct);
- */
-
-/**
- * WHAT IS THIS MIDDLEWARE FOR? (BEGINNER EXPLANATION)
- * ===================================================
- * Before we trust any data a user sends us, we should CHECK it.
- * For example, if a user is registering, we need to make sure:
- * - "email" is actually an email (not "hello123")
- * - "password" is at least 6 characters
- * - "name" is between 2 and 100 characters
  * 
- * This middleware takes a "Zod schema" (rules) and checks the request data against it.
- * If the data doesn't follow the rules, it returns "400 Bad Request" before
- * the data ever reaches our database.
- * 
- * HOW EXPRESS MIDDLEWARE WORKS:
- * Express runs functions in order: middleware1 -> middleware2 -> route handler.
- * If a middleware calls next(), the request moves to the next step.
- * If a middleware sends a response (like res.status(400).json()), the chain stops.
+ * Zod schema example:
+ *   const createProductSchema = z.object({
+ *     body: z.object({
+ *       name: z.string().min(1),        // name must be a non-empty string
+ *       price: z.number().positive()     // price must be a positive number
+ *     })
+ *   });
  */
 
 export function validate(schema) {
-    // Return a function that Express knows how to call
     return (req, res, next) => {
-        // Validate the request data against the Zod schema rules
-        // safeParse (not just parse) means: "Try to validate, but DON'T throw an error on failure"
-        // Instead, it returns an object with a "success" field we can check
+        // safeParse validates without throwing — returns { success, data, error }
         const result = schema.safeParse({
-            body: req.body,       // Data sent in the request body (e.g. login form)
-            params: req.params,   // Data in the URL (e.g. /users/5 -> id "5")
-            query: req.query,     // Data in the query string (e.g. ?limit=10)
+            body: req.body,       // Data sent in request body (e.g. login form data)
+            params: req.params,   // URL parameters (e.g. /users/5 → { id: "5" })
+            query: req.query,     // Query string (e.g. ?limit=10&page=1)
         });
 
-        // If the data does NOT follow the rules...
+        // If validation failed, return 400 with specific error messages
         if (!result.success) {
-            // Return 400 (Bad Request) with the field errors
-            // .flatten().fieldErrors turns Zod's errors into { fieldName: [messages] }
-            // Example: { email: ["Invalid email format"], password: ["Too short"] }
             return res.status(400).json({
                 message: "Validation failed",
                 errors: result.error.flatten().fieldErrors,
+                // Example errors: { email: ["Invalid email"], password: ["Too short"] }
             });
         }
 
-        // If validation passed, let the request continue to the actual route handler
-        next();
+        // Merge validated & transformed data back to request.
+        // Express 5 makes req.query a getter-only property, so we copy
+        // validated keys into the existing object rather than reassigning.
+        if (result.data.body) req.body = result.data.body;
+        if (result.data.params) Object.assign(req.params, result.data.params);
+        if (result.data.query) {
+            const q = req.query;
+            for (const [key, value] of Object.entries(result.data.query)) {
+                q[key] = value;
+            }
+        }
+
+        next(); // Continue to the next middleware or route handler
     };
 }

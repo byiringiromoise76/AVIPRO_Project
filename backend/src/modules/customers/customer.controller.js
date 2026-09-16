@@ -1,10 +1,21 @@
+/**
+ * src/modules/customers/customer.controller.js
+ * 
+ * HTTP handlers for customer operations.
+ * Extracts data from Express requests and delegates to the customer service.
+ */
 import * as customerService from "./customer.service.js";
 
-// Create new customer (guest checkout - customer provides details during order)
+/**
+ * POST /api/customers — Create a new customer (guest checkout).
+ * 
+ * Example body:
+ *   { "fullName": "Jane Doe", "phone": "0712345678", "address": "123 Main St", "branchId": 1 }
+ */
 export async function createCustomer(req, res, next) {
     try {
         const { fullName, phone, address, businessName } = req.body;
-        const branchId = req.auth?.branchId || 1; // Default to branch 1 if no auth
+        const branchId = req.auth?.branchId || 1; // Default to main branch if no auth
 
         const customer = await customerService.createCustomer({
             fullName,
@@ -13,14 +24,15 @@ export async function createCustomer(req, res, next) {
             businessName,
             branchId
         });
-
         return res.status(201).json({ data: customer });
     } catch (error) {
         next(error);
     }
 }
 
-// Get customer by ID (for tracking purposes)
+/**
+ * GET /api/customers/:id — Get a customer by ID.
+ */
 export async function getCustomerById(req, res, next) {
     try {
         const customer = await customerService.getCustomerById(req.params.id);
@@ -30,7 +42,9 @@ export async function getCustomerById(req, res, next) {
     }
 }
 
-// Get all customers (admin purposes)
+/**
+ * GET /api/customers — Get all customers.
+ */
 export async function getAllCustomers(req, res, next) {
     try {
         const customers = await customerService.getAllCustomers();
@@ -40,7 +54,9 @@ export async function getAllCustomers(req, res, next) {
     }
 }
 
-// Update customer information
+/**
+ * PUT /api/customers/:id — Update customer information.
+ */
 export async function updateCustomer(req, res, next) {
     try {
         const { fullName, phone, address, businessName } = req.body;
@@ -56,7 +72,9 @@ export async function updateCustomer(req, res, next) {
     }
 }
 
-// Search customers by name or phone
+/**
+ * GET /api/customers/search?search=term — Search customers by name/phone.
+ */
 export async function searchCustomers(req, res, next) {
     try {
         const { search } = req.query;
@@ -67,7 +85,9 @@ export async function searchCustomers(req, res, next) {
     }
 }
 
-// Get customer order history
+/**
+ * GET /api/customers/:id/orders — Get a customer's order history.
+ */
 export async function getCustomerOrderHistory(req, res, next) {
     try {
         const orders = await customerService.getCustomerOrderHistory(req.params.id);
